@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HackWithHyd Event Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+  <style>
+    body {
+      background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #222;
+    }
+    .container {
+      background: #fff;
+      max-width: 510px;
+      margin: 32px auto 16px auto;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(80,60,160,0.11), 0 1.5px 7px rgba(80,40,90,0.05);
+      padding: 20px 18px 30px 18px;
+      animation: fadeIn 0.8s;
+    }
+    @keyframes fadeIn {
+        0% {opacity:0;transform:translateY(30px);}
+        100%{opacity:1;transform:translateY(0);}
+    }
+    h1 {
+      color: #563684;
+      font-size: 2.2rem;
+      text-align: center;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    h2 {
+      font-size: 1.11rem;
+      margin-top: 16px;
+      color: #422766;
+      letter-spacing: 0.2px;
+    }
+    hr {
+      margin: 19px 0;
+      border: none;
+      border-top: 1.3px solid #ececec;
+    }
+    label {
+      font-weight: 500;
+      display: block;
+      margin: 7px 0 3px 2px;
+      font-size: 1rem;
+    }
+    input, button, textarea {
+      font-size: 1.07rem;
+      padding: 11px 14px;
+      border-radius: 7px;
+      border: 1px solid #bbb;
+      outline: none;
+      margin-bottom: 11px;
+      transition: border .15s;
+      width: 99%;
+      box-sizing: border-box;
+    }
+    input:focus, textarea:focus {
+      border: 2px solid #7036c2;
+    }
+    button {
+      color: #fff;
+      background: linear-gradient(120deg, #764ba2, #667eea 80%);
+      font-weight: 650;
+      cursor: pointer;
+      margin-top: 5px;
+      border: none;
+      letter-spacing: 0.04em;
+      font-size: 1.12rem;
+      box-shadow: 0 2px 9px #e1e1ee;
+      transition: background .13s, transform .11s;
+    }
+    button:active {
+      background: #7059b6;
+      transform: scale(0.98);
+    }
+    .event-list {
+      margin-left: 3px;
+      margin-right: 3px;
+    }
+    .event-card {
+      background: #faf8ff;
+      border-radius: 9px;
+      padding: 15px 13px 11px 17px;
+      margin: 10px 0;
+      box-shadow: 0 0.5px 2px #c9c6e3;
+      border-left: 5px solid #764ba2;
+    }
+    .event-title {
+      color: #4e3070;
+      font-size: 1.11rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .tag {
+      background: #ddd1f4;
+      color: #6241a0;
+      border-radius: 12px;
+      padding: 2px 9px;
+      font-size: 0.96rem;
+      margin: 0 4px 3px 0;
+      display: inline-block;
+    }
+    .small {
+      color: #aaa;
+      font-size: 0.93em;
+    }
+    #statDisplay {
+      background: #f5f3fa;
+      color: #35295d;
+      border-radius: 7px;
+      padding: 10px 12px 10px 12px;
+      margin-top: 10px;
+      box-shadow: 0 1.5px 5px #e2deec;
+      min-height: 30px;
+      font-size: 0.98rem;
+      word-break: break-all;
+    }
+    .success {
+      background: #d1f8e7;
+      color: #297d54;
+      padding: 7px 12px;
+      border-radius: 8px;
+      margin: 11px 0 3px 0;
+      border-left: 3px solid #36c192;
+      font-weight: 600;
+    }
+    @media (max-width: 660px) {
+      .container {
+        max-width: 98vw;
+        padding: 10px 5.5vw 32px 5.5vw;
+        margin: 1.8vw;
+      }
+      h1 {font-size:1.25rem;}
+      input, button, textarea {
+        font-size: 1rem;
+        padding: 11px 10px;
+      }
+      .event-card {padding-left:9px;}
+      #statDisplay {font-size:0.88rem;}
+    }
+    @media (max-width: 420px) {
+      h1 {font-size:1.01rem;}
+      .container {padding:2vw;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+  <h1>🎉 HackWithHyd Event Platform</h1>
+
+  <hr>
+  <div id="msg"></div>
+
+  <form onsubmit="createEvent();return false;">
+    <label for="ename">Event name</label>
+    <input id="ename" autocomplete="off" placeholder="e.g. AI Bootcamp" required>
+    <label for="date">Date</label>
+    <input id="date" type="date" required>
+    <label for="tags">Tags <span class="small">(comma separated)</span></label>
+    <input id="tags" autocomplete="off" placeholder="e.g. AI, Hackathon, Python" required>
+    <button type="submit">Create Event</button>
+  </form>
+
+  <hr>
+  <h2 style="margin-top:10px;">All Events</h2>
+  <div id="eventList" class="event-list"></div>
+
+  <hr>
+  <form onsubmit="registerParticipant();return false;">
+    <label for="pevent">Event ID (from above)</label>
+    <input id="pevent" autocomplete="off" placeholder="e.g. E1" required>
+    <label for="pname">Participant name</label>
+    <input id="pname" autocomplete="off" placeholder="e.g. Harsha Kumar" required>
+    <label for="email">Email</label>
+    <input id="email" autocomplete="off" type="email" placeholder="harsha@email.com" required>
+    <label for="skills">Skills <span class="small">(comma separated)</span></label>
+    <input id="skills" autocomplete="off" placeholder="e.g. Python, ML, JS" required>
+    <button type="submit">Register Participant</button>
+  </form>
+
+  <hr>
+  <h2 style="margin-top:10px;">Event Stats</h2>
+  <form onsubmit="getStats();return false;">
+    <label for="sevent">Event ID</label>
+    <input id="sevent" autocomplete="off" placeholder="e.g. E1" required>
+    <button type="submit">Show Stats</button>
+  </form>
+  <div id="statDisplay"></div>
+  </div>
+
+<script>
+const BASE = "http://localhost:5000"; // or http://127.0.0.1:5000
+
+function showMsg(message, type='success') {
+    const msg = document.getElementById('msg');
+    msg.innerHTML = `<div class="${type}">${message}</div>`;
+    setTimeout(() => { msg.innerHTML = ""; }, 2150);
+}
+
+function createEvent() {
+  let name = document.getElementById('ename').value.trim();
+  let date = document.getElementById('date').value;
+  let tags = document.getElementById('tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  fetch(BASE + '/events', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, date, tags })
+  }).then(res => res.json())
+    .then(event => {
+      showMsg('✅ Event Created: ' + event.eid);
+      loadEvents();
+      document.querySelector("form").reset();
+    })
+    .catch(_ => showMsg('❌ Failed to create event', 'error'));
+}
+
+function loadEvents() {
+  fetch(BASE + '/events')
+    .then(res => res.json())
+    .then(events => {
+      let el = document.getElementById('eventList');
+      if (!events.length) {
+        el.innerHTML = '<div class="small">No events found. Add one!</div>';
+        return;
+      }
+      el.innerHTML = "";
+      events.forEach(ev => {
+        let tagsMarkup = ev.tags.map(t => `<span class="tag">${t.trim()}</span>`).join(" ");
+        el.innerHTML += `
+          <div class="event-card">
+            <div class="event-title">${ev.eid}: ${ev.name}</div>
+            <div>${tagsMarkup}</div>
+            <div class="small">Date: ${ev.date}</div>
+          </div>`;
+      });
+    });
+}
+
+function registerParticipant() {
+  let eid = document.getElementById('pevent').value.trim();
+  let pname = document.getElementById('pname').value.trim();
+  let email = document.getElementById('email').value.trim();
+  let skills = document.getElementById('skills').value.split(',').map(s=>s.trim()).filter(Boolean);
+  fetch(BASE + `/events/${eid}/join`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pname, email, skills })
+  }).then(res => res.json())
+    .then(resp => {
+      if (resp.msg && resp.msg.toLowerCase().includes("ok")) {
+        showMsg("✅ Registered (" + resp.count + " total)");
+      } else {
+        showMsg("❌ " + (resp.msg || "Error"), "error");
+      }
+    })
+    .catch(_ => showMsg('❌ Failed to register', 'error'));
+}
+
+function getStats() {
+  let eid = document.getElementById('sevent').value.trim();
+  fetch(BASE + `/events/${eid}/stats`)
+    .then(res => res.json())
+    .then(stats => {
+      if (stats.total !== undefined) {
+        let str = `<b>Total Participants:</b> ${stats.total}<br>`;
+        if (stats.skills && Object.keys(stats.skills).length > 0) {
+          str += "<b>Skill Distribution:</b><ul style='margin:0 0 0 18px;padding:0;'>";
+          Object.entries(stats.skills).forEach(([skill, n]) => {
+            str += `<li>${skill}: <b>${n}</b></li>`;
+          });
+          str += "</ul>";
+        }
+        document.getElementById('statDisplay').innerHTML = str;
+      } else {
+        document.getElementById('statDisplay').innerHTML = 'No data.';
+      }
+    })
+    .catch(_ => document.getElementById('statDisplay').innerHTML = 'Error loading stats.');
+}
+
+window.onload = loadEvents;
+</script>
+</body>
+</html>
